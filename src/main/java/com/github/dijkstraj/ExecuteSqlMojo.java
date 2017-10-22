@@ -28,7 +28,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
-import org.jooq.lambda.Unchecked;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,7 +38,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
-import java.util.stream.Stream;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 @Mojo(name = "execute", defaultPhase = LifecyclePhase.VERIFY)
 public class ExecuteSqlMojo extends AbstractMojo {
@@ -66,12 +67,14 @@ public class ExecuteSqlMojo extends AbstractMojo {
         loadJdbcDriverIfDefined();
 
         final String encoding = project.getProperties().getProperty("project.build.encoding", "UTF-8");
-        files().forEach(Unchecked.consumer(file -> withConnection(connection -> {
-            try (Statement statement = connection.createStatement()) {
-                statement.execute(readFile(file, encoding));
-                getLog().info("Executed SQL from " + file.toString());
-            }
-        })));
+        for (Path file : files()) {
+            withConnection(connection -> {
+                try (Statement statement = connection.createStatement()) {
+                    statement.execute(readFile(file, encoding));
+                    getLog().info("Executed SQL from " + file.toString());
+                }
+            });
+        }
     }
 
     private void loadJdbcDriverIfDefined() throws MojoExecutionException {
@@ -84,10 +87,12 @@ public class ExecuteSqlMojo extends AbstractMojo {
         }
     }
 
-    private Stream<Path> files() {
+    private List<Path> files() {
         FileSetManager fileSetManager = new FileSetManager();
         return Arrays.stream(fileSetManager.getIncludedFiles(fileSet))
-                .map(relativePath -> Paths.get(fileSet.getDirectory(), relativePath));
+                .sorted()
+                .map(relativePath -> Paths.get(fileSet.getDirectory(), relativePath))
+                .collect(toList());
     }
 
     private String readFile(Path file, String encoding) throws MojoExecutionException {
@@ -102,6 +107,7 @@ public class ExecuteSqlMojo extends AbstractMojo {
         try {
             try (Connection connection = DriverManager.getConnection(url, username, password)) {
                 consumer.consume(connection);
+                connection.commit();
             }
         } catch (SQLException e) {
             throw new MojoExecutionException("Error while talking to the database", e);
