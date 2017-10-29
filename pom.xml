@@ -3,7 +3,7 @@
     <groupId>com.github.dijkstraj</groupId>
     <artifactId>sql-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Execute SQL commands during a Maven build. Can be used to create a database for an integration test.</description>
     <url>https://github.com/dijkstraj/sql-maven-plugin</url>
@@ -29,7 +29,7 @@
         <connection>scm:git:git://github.com/dijkstraj/sql-maven-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:dijkstraj/sql-maven-plugin.git</developerConnection>
         <url>http://github.com/dijkstraj/sql-maven-plugin/tree/master</url>
-      <tag>sql-maven-plugin-1.0</tag>
+      <tag>HEAD</tag>
   </scm>
     <distributionManagement>
         <snapshotRepository>
