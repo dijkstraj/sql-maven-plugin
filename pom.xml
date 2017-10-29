@@ -6,7 +6,8 @@
     <packaging>maven-plugin</packaging>
     <version>1.0-SNAPSHOT</version>
     <name>${project.groupId}:${project.artifactId}</name>
-    <url>http://maven.apache.org</url>
+    <description>Execute SQL commands during a Maven build. Can be used to create a database for an integration test.</description>
+    <url>https://github.com/dijkstraj/sql-maven-plugin</url>
     <organization>
         <name>dijkstraj</name>
     </organization>
